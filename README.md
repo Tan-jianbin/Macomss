@@ -2,7 +2,6 @@
 
 This repository supports the paper **"Integrated Analysis for Electronic Health Records with Structured and Sporadic Missingness"** by Jianbin Tan, Yan Zhang, Chuan Hong, T. Tony Cai, Tianxi Cai, and Anru R. Zhang. 
 
-```
 
 ## Abstract
 This repository contains code and additional resources supporting our study.
