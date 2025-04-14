@@ -4,7 +4,7 @@ This repository accompanies the paper **"Integrated Analysis for Electronic Heal
 
 ## Overview
 
-This repository provides the implementation of a novel matrix completion algorithm tailored for data with **both structured and sporadic missingness**, as encountered in multi-site electronic health record (EHR) systems. The method supports robust imputation across heterogeneous healthcare networks by leveraging structural information and cross-site similarities.
+This repository provides the implementation of a novel matrix completion algorithm tailored for data with **both structured and sporadic missingness**, as encountered in multi-site electronic health record (EHR) systems. The method supports robust imputation across heterogeneous healthcare systems by leveraging structural information and cross-site similarities.
 
 ## 1. Data Description
 
