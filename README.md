@@ -31,3 +31,5 @@ To facilitate replication of results, the code is organized as follows:
 
 - **`Feature_increased_case/`**  
   Scripts for feature-wise scalability experiments (Figure 4).
+  
+  For detailed usage and instructions, please refer to the individual `readme.txt` files included in each subfolder.
