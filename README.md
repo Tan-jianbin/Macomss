@@ -31,9 +31,3 @@ To facilitate replication of results, the code is organized as follows:
 
 - **`Feature_increased_case/`**  
   Scripts for feature-wise scalability experiments (Figure 4).
-
-- **`Real_Data_Experiment/`**  
-  Scripts for reproducing real data results in Section 4.3 (Figure 5).
-
-- **`Heterogeneity_Experiment/`**  
-  Scripts for experiments examining cross-site heterogeneity (Figure 6).
