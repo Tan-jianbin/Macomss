@@ -37,5 +37,3 @@ To facilitate replication of results, the code is organized as follows:
 
 - **`Heterogeneity_Experiment/`**  
   Scripts for experiments examining cross-site heterogeneity (Figure 6).
-
-For detailed usage and instructions, please refer to the `readme.txt` files included in each subfolder.
