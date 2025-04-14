@@ -1,4 +1,4 @@
-### 3. Running the Code
+### Running the Code
 
 To reproduce the results under varying noise levels, follow the steps below:
 

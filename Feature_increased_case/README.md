@@ -1,4 +1,4 @@
-### 3. Running the Code
+### Running the Code
 
 To reproduce the results, follow the steps below:
 
