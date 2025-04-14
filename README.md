@@ -9,7 +9,7 @@ This repository provides the implementation of a novel matrix completion algorit
 ## 1. Data Description
 
 - The analysis is based on **Electronic Health Records (EHRs)** from the **Duke University Health System (DUHS)**.
-- Data were obtained through the **Duke Clinical Research Datamart (CRDM)** (Hurst et al., 2021).
+- Data were obtained through the **Duke Clinical Research Datamart (CRDM)**.
 - The dataset includes records from three hospitals, each treated as an **independent site**:
   - **Duke Raleigh Hospital (DRAH)** – Site 1  
   - **Duke Regional Hospital (DRH)** – Site 2  
