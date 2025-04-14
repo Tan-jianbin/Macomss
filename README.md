@@ -1,29 +1,41 @@
-#  Matrix completion with Missing Structurally and Sporadically (Macomss)
+# Matrix Completion with Structured and Sporadic Missingness (Macomss)
 
-This repository supports the paper **"Integrated Analysis for Electronic Health Records with Structured and Sporadic Missingness"** by Jianbin Tan, Yan Zhang, Chuan Hong, T. Tony Cai, Tianxi Cai, and Anru R. Zhang. 
+This repository accompanies the paper **"Integrated Analysis for Electronic Health Records with Structured and Sporadic Missingness"** by **Jianbin Tan**, **Yan Zhang**, **Chuan Hong**, **T. Tony Cai**, **Tianxi Cai**, and **Anru R. Zhang**.
 
+## Overview
 
-## Abstract
-This repository contains code and additional resources supporting our study.
+This repository provides the implementation of a novel matrix completion algorithm tailored for data with **both structured and sporadic missingness**, as encountered in multi-site electronic health record (EHR) systems. The method supports robust imputation across heterogeneous healthcare networks by leveraging structural information and cross-site similarities.
 
-## 1. Data
-- **Electronic Health Records (EHRs)** from **Duke University Health System (DUHS)**.
-- Data accessed through **Duke Clinical Research Datamart (CRDM)** (Hurst et al., 2021).
-- Includes data from three hospitals, each treated as an **isolated site**:
-  - **Duke Raleigh Hospital (DRAH)** – Site 1
-  - **Duke Regional Hospital (DRH)** – Site 2
-  - **Duke University Hospital (DUH)** – Site 3
+## 1. Data Description
 
+- The analysis is based on **Electronic Health Records (EHRs)** from the **Duke University Health System (DUHS)**.
+- Data were obtained through the **Duke Clinical Research Datamart (CRDM)** (Hurst et al., 2021).
+- The dataset includes records from three hospitals, each treated as an **independent site**:
+  - **Duke Raleigh Hospital (DRAH)** – Site 1  
+  - **Duke Regional Hospital (DRH)** – Site 2  
+  - **Duke University Hospital (DUH)** – Site 3  
 
 ## 2. Code Structure
-### Overview
-Our study introduces a imputation algorithm to impute matrix with both sporadic and structure missing.
+
+### Algorithm Implementation
+The repository implements our proposed imputation framework for matrix recovery under mixed missingness patterns.
 
 ### Reproducibility
-- The folder **`Results for Recovery Accuracy`**: Contains code for simulation experiments for Figure 2(A) and 2(B).
-- The folder **`Row_increased_case`**: Contains code for simulation experiments for Figure 3 .
-- The folder **`Feature_increased_case`**: Contains code for simulation experiments for Figure 4.
-- The folder **`Real_Data_Experiment`**: Contains code for real data experiment in Section 4.3 Figure 5.
-- The folder **`Heterogeneity_Experiment`**: Contains code for  real data experiment in Section 4.3 Figure 6.
+To facilitate replication of results, the code is organized as follows:
 
-Refer to the `readme.txt` files in each folder for detailed usage instructions.
+- **`Results_for_Recovery_Accuracy/`**  
+  Contains simulation scripts for generating Figure 2(A) and 2(B) in the paper.
+
+- **`Row_increased_case/`**  
+  Scripts for row-wise scalability experiments (Figure 3).
+
+- **`Feature_increased_case/`**  
+  Scripts for feature-wise scalability experiments (Figure 4).
+
+- **`Real_Data_Experiment/`**  
+  Scripts for reproducing real data results in Section 4.3 (Figure 5).
+
+- **`Heterogeneity_Experiment/`**  
+  Scripts for experiments examining cross-site heterogeneity (Figure 6).
+
+For detailed usage and instructions, please refer to the `readme.txt` files included in each subfolder.
