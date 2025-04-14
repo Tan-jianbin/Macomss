@@ -24,12 +24,12 @@ The repository implements our proposed imputation framework for matrix recovery 
 To facilitate replication of results, the code is organized as follows:
 
 - **`Results_for_Recovery_Accuracy/`**  
-  Contains simulation scripts for generating Figure 2(A) and 2(B) in the paper.
+  Contains simulation scripts for generating Figure 2
 
 - **`Row_increased_case/`**  
-  Scripts for row-wise scalability experiments (Figure 3).
+  Scripts for row-wise scalability experiments in Figure 3.
 
 - **`Feature_increased_case/`**  
-  Scripts for feature-wise scalability experiments (Figure 4).
+  Scripts for feature-wise scalability experiments in Figure 4.
   
   For detailed usage and instructions, please refer to the individual `readme.txt` files included in each subfolder.
