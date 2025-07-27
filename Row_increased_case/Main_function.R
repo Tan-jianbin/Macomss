@@ -72,8 +72,6 @@ MACOMSS.parsvd <- function(Y11, Y12, Y21) {
     Y_1 <- rbind(Y11, Y21)
     Y_2 <- rbind(Y12, Y22)
     hatA <- cbind(Y_1, Y_2)
-    # hatA22 <- matrix(0, p1 - m1, p2 - m2)
-    # hatA <- matrix(0, p1, p2)
   }
   return(list(hatA, hatr))
 }
@@ -146,16 +144,15 @@ sample_simulate <- function(nr, nc) {
 }
 
 
-sample_simulate_1 <- function(nr, nc) {
+sample_simulate_1 <- function(nr, nc, noise) {
   # Generate predictors
   r = 5
-  #r =5
   U = svd(matrix(rnorm(nr * r, sd = 5), nrow = nr, ncol = r))$u
   V = svd(matrix(rnorm((nc) * r), nrow = nc, ncol = r))$u  # Changed nc to nc-1
   D = diag(rgamma(5, 2, 2))
   A = U %*% D %*% t(V)
   A = scale(A)
-  sig = norm(A, 'F') / sqrt(nrow(A) * ncol(A)) * 0.4 # 0.1,0.2,0.3
+  sig = norm(A, 'F') / sqrt(nrow(A) * ncol(A)) * noise
   Y = A + matrix(sig * rnorm(nrow(A) * ncol(A)),
                  nrow = nrow(A),
                  ncol = ncol(A))
@@ -168,8 +165,9 @@ sample_simulate_1 <- function(nr, nc) {
   beta_norandom <- c(rnorm(15), rnorm(nc - 15, 0, 0))
   beta <- sample(beta_norandom)
   random_intercp <- rnorm(1, mean = 0, sd = 1)
-  
   beta_all <- c(random_intercp, beta)
+  
+  # Generate outcome
   logit <- X %*% beta + random_intercp  # X and beta dimensions now match
   prob <- 1 / (1 + exp(-logit))
   y <- rbinom(nr, 1, prob)

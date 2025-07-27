@@ -89,7 +89,6 @@ for (l in 1:lmax) {
   A = U %*% D %*% t(V) # Original matrix
   sig = norm(A, 'F') / sqrt(p1 * p2) * 0.3
   
-  
   for (i in 1:length(m)) {
     for (j in 1:length(m)) {
       m1 = m[i]
@@ -274,3 +273,4 @@ wireframe(
   screen = list(z = 45, x = -60),
   col.regions = custom_colors
 )
+

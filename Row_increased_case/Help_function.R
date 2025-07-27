@@ -7,8 +7,6 @@ library(glmnet)
 library(mice)
 library(filling)
 library(VIM)
-# Function to fit model and calculate errors
-
 
 fit_and_calculate_errors <- function(data,
                                      method_name,
@@ -21,6 +19,7 @@ fit_and_calculate_errors <- function(data,
                                      XB) {
   train_label_noise <- train_label[[1]]
   mask_missing_indicator <- train_label[[2]]
+  
   cv_fit <- cv.glmnet(
     data,
     train_label_noise,
@@ -39,7 +38,9 @@ fit_and_calculate_errors <- function(data,
     intercept = TRUE,
     standardize = TRUE
   )
-  beta_method <- as.matrix(coef(lrm, s = "lambda.min")) #check了（intercept,coeff）
+  
+  
+  beta_method <- as.matrix(coef(lrm, s = "lambda.min"))
   
   beta_method[is.na(beta_method)] <- 0
   beta_method <- matrix(beta_method, ncol = 1)
@@ -52,7 +53,6 @@ fit_and_calculate_errors <- function(data,
   zero_mark <- beta == 0
   zero_mark_estimated <- beta_method == 0
   overlap <- sum(zero_mark & zero_mark_estimated)
-  
   
   predictions <- as.vector(predict(lrm, newx = test_data, type = "response"))
   roc_data <- data.frame(test_label = test_label, predictions = predictions)
@@ -81,11 +81,11 @@ fit_and_calculate_errors <- function(data,
 
 
 
-implement_func <- function(l, m1, m2, p1) {
+implement_func <- function(l, m1, m2, p1, noise) {
   set.seed(l * 100 * m1 + m2 * p1 + 300) # Set a seed for simulation, then your result is reproduciable.
   
   repeat {
-    x <- sample_simulate_1(m1 + 200, m2)
+    x <- sample_simulate_1(m1 + 200, m2, noise)
     xx <- x[[1]]
     xxx <- x[[4]]  # Y
     fixed_label <- x[[5]]
@@ -124,24 +124,22 @@ implement_func <- function(l, m1, m2, p1) {
     train_data_bar <- list(train_data_bar, designm, train_true_data) #### list here
     
     test_all <- labeled_x[test_indices, ]
-    # test_data <- as.matrix(test_all[, -ncol(test_all)])
     test_label <- as.matrix(fixed_label[test_indices, ])
     
     # Add noise
     train_data_noise <- xxx[train_indices, ]
-    #test_data_noise <- xxx[test_indices, ]
     test_data <- xxx[test_indices, ]
     test_data_noise <- xxx[test_indices, ]
     
     # Check if train_label or test_label contains only 0 or only 1
     if (length(unique(train_label)) > 1 &&
         length(unique(test_label)) > 1) {
-      break  # If both contain more than one class, exit the loop
+      break
     }
   }
   
   ####################data process
-  p2 = m1 * 0.5  # set missing scale
+  p2 = m1 * 0.6  # set missing scale
   # MACOMSS method
   train_missing <- missing_s(train_data_noise)
   n_r <- nrow(train_missing)
@@ -166,7 +164,6 @@ implement_func <- function(l, m1, m2, p1) {
     train_data_bar,
     XB
   )
-  # MACOMSS
   x_MACOMSS <- MACOMSS.parsvd(Y11, Y12, Y21)[[1]]
   error_MACOMSS <- fit_and_calculate_errors(
     x_MACOMSS,
@@ -180,6 +177,7 @@ implement_func <- function(l, m1, m2, p1) {
     XB
   )
   print("MACOMSS end")
+  
   # MICE method pmm
   train_missing[(n_r - p2 + 1):n_r, (n_c - p1 + 1):n_c] <- NA
   result_mice <- mice(
@@ -205,6 +203,7 @@ implement_func <- function(l, m1, m2, p1) {
     XB
   )
   print("Mice pmm end")
+  
   # MICE method sample
   result_mice_s <- mice(
     train_missing,
@@ -253,6 +252,7 @@ implement_func <- function(l, m1, m2, p1) {
     XB
   )
   print("MICE cart end")
+  
   # MICE method norm
   result_mice_norm <- mice(
     train_missing,
@@ -280,6 +280,7 @@ implement_func <- function(l, m1, m2, p1) {
   
   # KNN
   k_col <- ncol(train_missing)
+  # dat_fill_1 <- fill.KNNimpute(train_missing,5)[[1]]
   dat_fill_1 <- fill.KNNimpute(train_missing, 50)[[1]]
   
   dat_fill_2 <- apply(dat_fill_1, 2, function(x) {
@@ -300,6 +301,7 @@ implement_func <- function(l, m1, m2, p1) {
   )
   print("fill KNN end")
   
+  
   return(
     list(
       error_raw = error_raw,
@@ -313,7 +315,7 @@ implement_func <- function(l, m1, m2, p1) {
   )
 }
 
-parallel_simulation <- function(m1_values, m2, p1, lmax, num_cores = detectCores() - 1) {
+parallel_simulation <- function(m1_values, m2, p1, lmax, num_cores = detectCores() - 1, noise) {
   # Create cluster
   cl <- parallel::makeCluster(num_cores)
   invisible(gc())
@@ -331,7 +333,8 @@ parallel_simulation <- function(m1_values, m2, p1, lmax, num_cores = detectCores
       "sample_simulate",
       "missing_simulate",
       "label_binary",
-      "sigmoid_binary_y"
+      "sigmoid_binary_y",
+      "impute_vae"
     )
   )
   
@@ -348,7 +351,8 @@ parallel_simulation <- function(m1_values, m2, p1, lmax, num_cores = detectCores
         l = l,
         m1 = m1,
         m2 = m2,
-        p1 = p1
+        p1 = p1,
+        noise = noise
       )
     }
     
@@ -368,8 +372,6 @@ parallel_simulation <- function(m1_values, m2, p1, lmax, num_cores = detectCores
     results[[k]] <- c(list(m1 = m1), combined_results)
   }
   
-  # Stop the cluster
   stopCluster(cl)
-  
   return(results)
 }

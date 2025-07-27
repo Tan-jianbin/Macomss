@@ -127,7 +127,7 @@ implement_func <- function(l, m1, m2, p1) {
   }
   
   #################### data process ####################
-  p2 = m1 * 0.5  # set missing scale
+  p2 = m1 * 0.6  # set missing scale
   
   # MACOMSS method
   train_missing <- missing_s(train_data_noise)
