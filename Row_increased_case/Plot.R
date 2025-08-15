@@ -18,6 +18,8 @@ method_name <- factor(
   c(
     "Complete-data benchmark",
     "MACOMSS",
+    "VAE",
+    "VAA",
     "PMM",
     "RS",
     "CART",
@@ -27,6 +29,8 @@ method_name <- factor(
   levels = c(
     "Complete-data benchmark",
     "MACOMSS",
+    "VAE",
+    "VAA",
     "PMM",
     "RS",
     "CART",
@@ -36,8 +40,8 @@ method_name <- factor(
 )
 
 method_name_adjust <- factor(
-  c("MACOMSS", "PMM", "RS", "CART", "BLR", "K-NN"),
-  levels = c("MACOMSS", "PMM", "RS", "CART", "BLR", "K-NN")
+  c("MACOMSS", "VAE", "VAA", "PMM", "RS", "CART", "BLR", "K-NN"),
+  levels = c("MACOMSS", "VAE", "VAA", "PMM", "RS", "CART", "BLR", "K-NN")
 )
 
 
@@ -64,6 +68,8 @@ colnames(result_auc) <- c("SNR", "Row", "Method", "Value")
 method_colors_auc <- c(
   "Complete-data benchmark" = "purple",
   "MACOMSS" = "#e31a1c",
+  "VAE" = "cyan3",
+  "VAA" = "#838B8B",
   "PMM" = "#fdbf6f",
   "RS" = '#fb9a99',
   "CART" = '#33a02c',
@@ -126,12 +132,10 @@ for (i in 2:4) {
 }
 colnames(result_mse) <- c("SNR", "Row", "Method", "Value")
 
-# 替换Method列中的"baseline"值
-# result_mse$Method <- ifelse(result_mse$Method == "baseline", "Complete-data method", result_mse$Method)
-# result_mse <- result_mse[result_mse[, 3] != "baseline", ]
-
 method_colors_nmse <- c(
   "MACOMSS" = "#e31a1c",
+  "VAE" = "cyan3",
+  "VAA" = "#838B8B",
   "PMM" = "#fdbf6f",
   "RS" = '#fb9a99',
   "CART" = '#33a02c',
@@ -172,10 +176,25 @@ p2
 
 # Group plot
 library(patchwork)
-p2 + p1 + scale_color_manual(values = method_colors_auc,
-                             labels = method_name,
-                             name = "Method") +
-  plot_layout(guides = 'collect', ncol = 1) &
-  theme(legend.position = "bottom")
+(p2 + p1) +
+  scale_color_manual(
+    values = method_colors_auc,
+    labels = method_name,
+    name   = "Method"
+  ) +
+  guides(
+    color = guide_legend(
+      nrow  = 1,
+      byrow = TRUE
+    )
+  ) +
+  plot_layout(
+    guides = "collect",
+    ncol = 1
+  ) &
+  theme(
+    legend.position  = "bottom",
+    legend.direction = "horizontal"
+  )
 
-ggsave("Combine_figure.pdf", width = 6, height = 6)
+ggsave("Combine_figure.pdf", width = 9, height = 6)

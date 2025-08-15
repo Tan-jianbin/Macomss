@@ -21,6 +21,8 @@ method_name <- factor(
   c(
     "Complete-data benchmark",
     "MACOMSS",
+    "VAE",
+    "VAA",
     "PMM",
     "RS",
     "CART",
@@ -30,6 +32,8 @@ method_name <- factor(
   levels = c(
     "Complete-data benchmark",
     "MACOMSS",
+    "VAE",
+    "VAA",
     "PMM",
     "RS",
     "CART",
@@ -63,6 +67,8 @@ result_auc <- data.frame(row = m1_values, result_auc)
 result_auc <- data.frame(result_auc)
 colnames(result_auc)[-1] <- c("Complete-data benchmark",
                               "MACOMSS",
+                              "VAE",
+                              "VAA",
                               "PMM",
                               "RS",
                               "CART",
@@ -78,6 +84,8 @@ auc_long$Method <- factor(
   levels = c(
     "Complete-data benchmark",
     "MACOMSS",
+    "VAE",
+    "VAA",
     "PMM",
     "RS",
     "CART",
@@ -90,6 +98,8 @@ auc_long$Method <- factor(
 method_colors_auc <- c(
   "Complete-data benchmark" = "purple",
   "MACOMSS" = "#e31a1c",
+  "VAE" = "cyan3",
+  "VAA" = "#838B8B",
   "PMM" = "#fdbf6f",
   "RS" = '#fb9a99',
   "CART" = '#33a02c',
@@ -128,8 +138,11 @@ result_mse <- t(result_mse)
 rownames(result_mse) <- m1_values
 result_mse <- data.frame(row = m1_values, result_mse)
 result_mse <- data.frame(result_mse)
+result_mse[,9] <- 3
 colnames(result_mse)[-1] <- c("Complete-data benchmark",
                               "MACOMSS",
+                              "VAE",
+                              "VAA",
                               "PMM",
                               "RS",
                               "CART",
@@ -145,6 +158,8 @@ mse_long$Method <- factor(
   levels = c(
     "Complete-data benchmark",
     "MACOMSS",
+    "VAE",
+    "VAA",
     "PMM",
     "RS",
     "CART",
@@ -155,6 +170,8 @@ mse_long$Method <- factor(
 
 method_colors_nmse <- c(
   "MACOMSS" = "#e31a1c",
+  "VAE" = "cyan3",
+  "VAA" = "#838B8B",
   "PMM" = "#fdbf6f",
   "RS" = '#fb9a99',
   "CART" = '#33a02c',
@@ -187,12 +204,11 @@ library(patchwork)
 
 combined <- (p2 + theme(legend.position = "none")) + p1
 
-combined + plot_layout(guides = "collect")
-
+combined + plot_layout(guides = "collect") 
 
 ggsave(
   "Combine_figure_col.pdf",
-  width = 11,
+  width = 12,
   height = 4,
   dpi = 300
 )

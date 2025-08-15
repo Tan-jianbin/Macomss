@@ -286,14 +286,3 @@ impute_vaa <- function(
   X_imputed
 }
 
-# # # simulate data
-# # set.seed(123)
-# X <- matrix(rnorm(500), nrow = 50)
-# # randomly mask 20% as NA
-# X[sample(length(X), size = 0.2 * length(X))] <- NA
-# 
-# # impute
-# X_complete <- impute_vaa(X)
-# 
-# # check
-# sum(is.na(X_complete))  # should be 0

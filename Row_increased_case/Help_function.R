@@ -82,230 +82,281 @@ fit_and_calculate_errors <- function(data,
 
 
 implement_func <- function(l, m1, m2, p1, noise) {
-  set.seed(l * 100 * m1 + m2 * p1 + 300) # Set a seed for simulation, then your result is reproduciable.
   
-  repeat {
-    x <- sample_simulate_1(m1 + 200, m2, noise)
-    xx <- x[[1]]
-    xxx <- x[[4]]  # Y
-    fixed_label <- x[[5]]
-    
-    
-    x_nolabel <- xx[, -ncol(xx)]
-    
-    label_list <- x
-    labeled_x <- label_list[[1]]
-    beta <- as.matrix(label_list[[2]])
-    label_raw <- as.matrix(label_list[[3]])
-    
-    total_rows <- nrow(labeled_x)
-    indices <- sample(1:total_rows)
-    
-    # Define split point
-    split_point <- floor(total_rows - 200)
-    
-    # Train-test split
-    train_indices <- indices[1:split_point]
-    test_indices <- indices[(split_point + 1):total_rows]
-    
-    train_all <- labeled_x[train_indices, ]
-    train_data <- as.matrix(train_all[, -ncol(train_all)])
-    train_label <- as.matrix(train_all[, ncol(train_all)])
-    
-    designm <- x[[7]]
-    XB <- x[[6]]
-    true_data <- x[[8]]
-    
-    train_true_data <- true_data[train_indices, ]
-    
-    ones_column <- rep(1, nrow(train_data))
-    train_data_bar <- cbind(ones_column, train_data)
-    train_data_bar <- as.matrix(train_data_bar)
-    train_data_bar <- list(train_data_bar, designm, train_true_data) #### list here
-    
-    test_all <- labeled_x[test_indices, ]
-    test_label <- as.matrix(fixed_label[test_indices, ])
-    
-    # Add noise
-    train_data_noise <- xxx[train_indices, ]
-    test_data <- xxx[test_indices, ]
-    test_data_noise <- xxx[test_indices, ]
-    
-    # Check if train_label or test_label contains only 0 or only 1
-    if (length(unique(train_label)) > 1 &&
-        length(unique(test_label)) > 1) {
-      break
-    }
+  seed <- l * 100 * m1 + m2 * p1 + 300
+  set.seed(seed) # Set a seed for simulation, then your result is reproduciable.
+  comple_mark <- F
+  while(comple_mark == F){
+    tryCatch({
+      seed <- seed + 100
+      set.seed(seed) # Set a seed for simulation, then your result is reproduciable.
+      
+      repeat {
+        x <- sample_simulate_1(m1 + 200, m2, noise)
+        xx <- x[[1]]
+        xxx <- x[[4]]  # Y
+        fixed_label <- x[[5]]
+        
+        
+        x_nolabel <- xx[, -ncol(xx)]
+        
+        label_list <- x
+        labeled_x <- label_list[[1]]
+        beta <- as.matrix(label_list[[2]])
+        label_raw <- as.matrix(label_list[[3]])
+        
+        total_rows <- nrow(labeled_x)
+        indices <- sample(1:total_rows)
+        
+        # Define split point
+        split_point <- floor(total_rows - 200)
+        
+        # Train-test split
+        train_indices <- indices[1:split_point]
+        test_indices <- indices[(split_point + 1):total_rows]
+        
+        train_all <- labeled_x[train_indices, ]
+        train_data <- as.matrix(train_all[, -ncol(train_all)])
+        train_label <- as.matrix(train_all[, ncol(train_all)])
+        
+        designm <- x[[7]]
+        XB <- x[[6]]
+        true_data <- x[[8]]
+        
+        train_true_data <- true_data[train_indices, ]
+        
+        ones_column <- rep(1, nrow(train_data))
+        train_data_bar <- cbind(ones_column, train_data)
+        train_data_bar <- as.matrix(train_data_bar)
+        train_data_bar <- list(train_data_bar, designm, train_true_data) #### list here
+        
+        test_all <- labeled_x[test_indices, ]
+        test_label <- as.matrix(fixed_label[test_indices, ])
+        
+        # Add noise
+        train_data_noise <- xxx[train_indices, ]
+        test_data <- xxx[test_indices, ]
+        test_data_noise <- xxx[test_indices, ]
+        
+        # Check if train_label or test_label contains only 0 or only 1
+        if (length(unique(train_label)) > 1 &&
+            length(unique(test_label)) > 1) {
+          break
+        }
+      }
+      
+      ####################data process
+      p2 = m1 * 0.6  # set missing scale
+      # MACOMSS method
+      train_missing <- missing_s(train_data_noise)
+      n_r <- nrow(train_missing)
+      n_c <- ncol(train_missing)
+      Y11 = as.matrix(train_missing[1:(n_r - p2), 1:(n_c - p1)])
+      Y12 = as.matrix(train_missing[1:(n_r - p2), (n_c - p1 + 1):n_c])
+      Y21 = as.matrix(train_missing[(n_r - p2 + 1):n_r, 1:(n_c - p1)])
+      train_missing[(n_r - p2 + 1):n_r, (n_c - p1 + 1):n_c] <- NA
+      train_missing_mat <- as.matrix(train_missing)
+      mask_missing_indicator <- !is.na(train_missing)
+      train_label <- list(train_label, mask_missing_indicator)
+      
+      # Raw method
+      error_raw <- fit_and_calculate_errors(
+        train_data,
+        "raw",
+        train_label,
+        test_label,
+        beta,
+        test_data,
+        train_data,
+        train_data_bar,
+        XB
+      )
+      
+      # MACOMSS
+      x_MACOMSS <- MACOMSS.parsvd(Y11, Y12, Y21)[[1]]
+      error_MACOMSS <- fit_and_calculate_errors(
+        x_MACOMSS,
+        "MACOMSS",
+        train_label,
+        test_label,
+        beta,
+        test_data_noise ,
+        train_data_noise,
+        train_data_bar,
+        XB
+      )
+      print("MACOMSS end")
+      
+      # VAE
+      train_missing[(n_r - p2 + 1):n_r, (n_c - p1 + 1):n_c] <- NA
+      complete_vae <- impute_vae(train_missing)
+      complete_vae <- apply(complete_vae, 2, function(x) {
+        ifelse(is.na(x), mean(x, na.rm = TRUE), x)
+      })
+      error_vae <- fit_and_calculate_errors(
+        complete_vae,
+        "vae",
+        train_label,
+        test_label,
+        beta,
+        test_data_noise ,
+        train_data_noise,
+        train_data_bar,
+        XB
+      )
+      print("vae end")
+      
+      # VAA
+      complete_vaa <- impute_vaa(train_missing)
+      complete_vaa <- apply(complete_vaa, 2, function(x) {
+        ifelse(is.na(x), mean(x, na.rm = TRUE), x)
+      })
+      error_vaa <- fit_and_calculate_errors(
+        complete_vaa,
+        "vaa",
+        train_label,
+        test_label,
+        beta,
+        test_data_noise ,
+        train_data_noise,
+        train_data_bar,
+        XB
+      )
+      print("vaa end")
+      
+      # MICE method pmm
+      result_mice <- mice(
+        train_missing,
+        method = "pmm",
+        m = 1,
+        maxit = 1,
+        printFlag = F
+      )
+      complete_mice <- as.matrix(mice::complete(result_mice))
+      complete_mice <- apply(complete_mice, 2, function(x) {
+        ifelse(is.na(x), mean(x, na.rm = TRUE), x)
+      })
+      error_mice <- fit_and_calculate_errors(
+        complete_mice,
+        "mice",
+        train_label,
+        test_label,
+        beta,
+        test_data_noise ,
+        train_data_noise,
+        train_data_bar,
+        XB
+      )
+      print("Mice pmm end")
+      
+      # MICE method sample
+      result_mice_s <- mice(
+        train_missing,
+        method = "sample",
+        m = 1,
+        maxit = 1,
+        printFlag = F
+      )
+      complete_mice_s <- as.matrix(mice::complete(result_mice_s))
+      complete_mice_s <- apply(complete_mice_s, 2, function(x) {
+        ifelse(is.na(x), mean(x, na.rm = TRUE), x)
+      })
+      error_mice_s <- fit_and_calculate_errors(
+        complete_mice_s,
+        "mice_sample",
+        train_label,
+        test_label,
+        beta,
+        test_data_noise,
+        train_data_noise,
+        train_data_bar,
+        XB
+      )
+      print("MICE sample end")
+      
+      # MICE method cart
+      result_mice_cart <- mice(
+        train_missing,
+        method = "cart",
+        m = 1,
+        maxit = 1,
+        printFlag = F
+      )
+      complete_mice_cart <- as.matrix(mice::complete(result_mice_cart))
+      complete_mice_cart <- apply(complete_mice_cart, 2, function(x) {
+        ifelse(is.na(x), mean(x, na.rm = TRUE), x)
+      })
+      error_mice_cart <- fit_and_calculate_errors(
+        complete_mice_cart,
+        "mice_cart",
+        train_label,
+        test_label,
+        beta,
+        test_data_noise ,
+        train_data_noise,
+        train_data_bar,
+        XB
+      )
+      print("MICE cart end")
+      
+      # MICE method norm
+      result_mice_norm <- mice(
+        train_missing,
+        method = "norm",
+        m = 1,
+        maxit = 1,
+        printFlag = F
+      )
+      complete_mice_norm <- as.matrix(mice::complete(result_mice_norm))
+      complete_mice_norm <- apply(complete_mice_norm, 2, function(x) {
+        ifelse(is.na(x), mean(x, na.rm = TRUE), x)
+      })
+      error_mice_norm <- fit_and_calculate_errors(
+        complete_mice_norm,
+        "mice_norm",
+        train_label,
+        test_label,
+        beta,
+        test_data_noise,
+        train_data_noise,
+        train_data_bar,
+        XB
+      )
+      print("MICE norm end")
+      
+      # KNN
+      k_col <- ncol(train_missing)
+      # dat_fill_1 <- fill.KNNimpute(train_missing,5)[[1]]
+      dat_fill_1 <- fill.KNNimpute(train_missing, 50)[[1]]
+      
+      dat_fill_2 <- apply(dat_fill_1, 2, function(x) {
+        ifelse(is.na(x), mean(x, na.rm = TRUE), x)
+      }) #column mean to impute
+      
+      dat_fill <- as.matrix(dat_fill_2)
+      error_fill_KNN <- fit_and_calculate_errors(
+        dat_fill,
+        "fill_KNN",
+        train_label,
+        test_label,
+        beta,
+        test_data_noise ,
+        train_data_noise,
+        train_data_bar,
+        XB
+      )
+      print("fill KNN end")
+      
+      comple_mark <- T
+    }, error = function(e) NULL)
   }
-  
-  ####################data process
-  p2 = m1 * 0.6  # set missing scale
-  # MACOMSS method
-  train_missing <- missing_s(train_data_noise)
-  n_r <- nrow(train_missing)
-  n_c <- ncol(train_missing)
-  Y11 = as.matrix(train_missing[1:(n_r - p2), 1:(n_c - p1)])
-  Y12 = as.matrix(train_missing[1:(n_r - p2), (n_c - p1 + 1):n_c])
-  Y21 = as.matrix(train_missing[(n_r - p2 + 1):n_r, 1:(n_c - p1)])
-  train_missing[(n_r - p2 + 1):n_r, (n_c - p1 + 1):n_c] <- NA
-  train_missing_mat <- as.matrix(train_missing)
-  mask_missing_indicator <- !is.na(train_missing)
-  train_label <- list(train_label, mask_missing_indicator)
-  
-  # Raw method
-  error_raw <- fit_and_calculate_errors(
-    train_data,
-    "raw",
-    train_label,
-    test_label,
-    beta,
-    test_data,
-    train_data,
-    train_data_bar,
-    XB
-  )
-  x_MACOMSS <- MACOMSS.parsvd(Y11, Y12, Y21)[[1]]
-  error_MACOMSS <- fit_and_calculate_errors(
-    x_MACOMSS,
-    "MACOMSS",
-    train_label,
-    test_label,
-    beta,
-    test_data_noise ,
-    train_data_noise,
-    train_data_bar,
-    XB
-  )
-  print("MACOMSS end")
-  
-  # MICE method pmm
-  train_missing[(n_r - p2 + 1):n_r, (n_c - p1 + 1):n_c] <- NA
-  result_mice <- mice(
-    train_missing,
-    method = "pmm",
-    m = 1,
-    maxit = 1,
-    printFlag = F
-  )
-  complete_mice <- as.matrix(mice::complete(result_mice))
-  complete_mice <- apply(complete_mice, 2, function(x) {
-    ifelse(is.na(x), mean(x, na.rm = TRUE), x)
-  })
-  error_mice <- fit_and_calculate_errors(
-    complete_mice,
-    "mice",
-    train_label,
-    test_label,
-    beta,
-    test_data_noise ,
-    train_data_noise,
-    train_data_bar,
-    XB
-  )
-  print("Mice pmm end")
-  
-  # MICE method sample
-  result_mice_s <- mice(
-    train_missing,
-    method = "sample",
-    m = 1,
-    maxit = 1,
-    printFlag = F
-  )
-  complete_mice_s <- as.matrix(mice::complete(result_mice_s))
-  complete_mice_s <- apply(complete_mice_s, 2, function(x) {
-    ifelse(is.na(x), mean(x, na.rm = TRUE), x)
-  })
-  error_mice_s <- fit_and_calculate_errors(
-    complete_mice_s,
-    "mice_sample",
-    train_label,
-    test_label,
-    beta,
-    test_data_noise,
-    train_data_noise,
-    train_data_bar,
-    XB
-  )
-  print("MICE sample end")
-  # MICE method cart
-  result_mice_cart <- mice(
-    train_missing,
-    method = "cart",
-    m = 1,
-    maxit = 1,
-    printFlag = F
-  )
-  complete_mice_cart <- as.matrix(mice::complete(result_mice_cart))
-  complete_mice_cart <- apply(complete_mice_cart, 2, function(x) {
-    ifelse(is.na(x), mean(x, na.rm = TRUE), x)
-  })
-  error_mice_cart <- fit_and_calculate_errors(
-    complete_mice_cart,
-    "mice_cart",
-    train_label,
-    test_label,
-    beta,
-    test_data_noise ,
-    train_data_noise,
-    train_data_bar,
-    XB
-  )
-  print("MICE cart end")
-  
-  # MICE method norm
-  result_mice_norm <- mice(
-    train_missing,
-    method = "norm",
-    m = 1,
-    maxit = 1,
-    printFlag = F
-  )
-  complete_mice_norm <- as.matrix(mice::complete(result_mice_norm))
-  complete_mice_norm <- apply(complete_mice_norm, 2, function(x) {
-    ifelse(is.na(x), mean(x, na.rm = TRUE), x)
-  })
-  error_mice_norm <- fit_and_calculate_errors(
-    complete_mice_norm,
-    "mice_norm",
-    train_label,
-    test_label,
-    beta,
-    test_data_noise,
-    train_data_noise,
-    train_data_bar,
-    XB
-  )
-  print("MICE norm end")
-  
-  # KNN
-  k_col <- ncol(train_missing)
-  # dat_fill_1 <- fill.KNNimpute(train_missing,5)[[1]]
-  dat_fill_1 <- fill.KNNimpute(train_missing, 50)[[1]]
-  
-  dat_fill_2 <- apply(dat_fill_1, 2, function(x) {
-    ifelse(is.na(x), mean(x, na.rm = TRUE), x)
-  }) #column mean to impute
-  
-  dat_fill <- as.matrix(dat_fill_2)
-  error_fill_KNN <- fit_and_calculate_errors(
-    dat_fill,
-    "fill_KNN",
-    train_label,
-    test_label,
-    beta,
-    test_data_noise ,
-    train_data_noise,
-    train_data_bar,
-    XB
-  )
-  print("fill KNN end")
-  
   
   return(
     list(
       error_raw = error_raw,
       error_MACOMSS = error_MACOMSS,
+      error_vae = error_vae,
+      error_vaa = error_vaa,
       error_mice = error_mice,
       error_mice_s = error_mice_s,
       error_mice_cart = error_mice_cart,
@@ -334,7 +385,8 @@ parallel_simulation <- function(m1_values, m2, p1, lmax, num_cores = detectCores
       "missing_simulate",
       "label_binary",
       "sigmoid_binary_y",
-      "impute_vae"
+      "impute_vae",
+      "impute_vaa"
     )
   )
   
@@ -360,6 +412,8 @@ parallel_simulation <- function(m1_values, m2, p1, lmax, num_cores = detectCores
     combined_results <- list()
     for (method in c("raw",
                      "MACOMSS",
+                     "vae",
+                     "vaa",
                      "mice",
                      "mice_s",
                      "mice_cart",

@@ -25,4 +25,3 @@ for(noise in c(0.2, 0.3, 0.4)){
   results <- parallel_simulation(m1_values, m2, p1, lmax, num_cores = num_cores, noise = noise)
   save(results, file = paste0("Noise", noise, "/results.rda"), version = 2)
 }
-
