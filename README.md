@@ -29,6 +29,7 @@ This repository provides the implementation of a novel matrix completion algorit
   - **Duke Raleigh Hospital (DRAH)** – Site 1  
   - **Duke Regional Hospital (DRH)** – Site 2  
   - **Duke University Hospital (DUH)** – Site 3  
+- Due to the sensitive nature of the data and patient privacy protections, the dataset is not publicly available.  
 
 ## 2. Code Structure
 
@@ -46,5 +47,3 @@ To facilitate replication of results, the code is organized as follows:
 
 - **`Feature_increased_case/`**  
   Scripts for feature-wise scalability experiments in Figure 4.
-  
-  For detailed usage and instructions, please refer to the `readme` files included in each subfolder.
