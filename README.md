@@ -1,6 +1,21 @@
 # Matrix Completion with Structured and Sporadic Missingness (Macomss)
 
-This codebase is developed by **Yan Zhang**, **Anru R. Zhang**, and **Jianbin Tan**. The repository accompanies the paper **“Integrated Analysis for Electronic Health Records with Structured and Sporadic Missingness”** by **Jianbin Tan**, **Yan Zhang**, **Chuan Hong**, **T. Tony Cai**, **Tianxi Cai**, and **Anru R. Zhang** ([ArXiv:2506.09208](https://arxiv.org/abs/2506.09208)).
+This codebase is developed by **Yan Zhang**, **Anru Zhang**, and **Jianbin Tan**. The repository accompanies the paper **“Integrated Analysis for Electronic Health Records with Structured and Sporadic Missingness”** by **Jianbin Tan**, **Yan Zhang**, **Chuan Hong**, **T.Tony Cai**, **Tianxi Cai**, and **Anru Zhang** ([ArXiv:2506.09208](https://arxiv.org/abs/2506.09208)). The paper is published at [Journal of Biomedical Informatics](https://www.sciencedirect.com/science/article/pii/S1532046425001625?via%3Dihub).
+
+## Citation
+If you find our code, data, or methodology useful, you may cite us as:
+
+   @article{TAN2025104933,
+     title   = {Integrated analysis for electronic health records with structured and sporadic missingness},
+     author  = {Jianbin Tan and Yan Zhang and Chuan Hong and T. Tony Cai and Tianxi Cai and Anru R. Zhang},
+     journal = {Journal of Biomedical Informatics},
+     volume  = {171},
+     pages   = {104933},
+     year    = {2025},
+     doi = {https://doi.org/10.1016/j.jbi.2025.104933}
+    }
+
+---
 
 ## Overview
 
