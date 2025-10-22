@@ -12,7 +12,7 @@ If you find our code, data, or methodology useful, you may cite us as:
       volume  = {171},
       pages   = {104933},
       year    = {2025},
-      doi = {https://doi.org/10.1016/j.jbi.2025.104933}
+      doi     = {https://doi.org/10.1016/j.jbi.2025.104933}
     }
 
 ---
